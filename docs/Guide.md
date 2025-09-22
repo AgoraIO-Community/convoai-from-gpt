@@ -1,4 +1,4 @@
-# ConvoAI from Scratch — Build a Live Voice Chatbot with Agora ConvoAI + GPT-4
+# ConvoAI from Scratch — Build a Live Voice Chatbot with Agora ConvoAI 
 
 ## 1. Introduction & Motivation
 
