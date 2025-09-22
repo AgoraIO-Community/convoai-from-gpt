@@ -230,17 +230,7 @@ vercel --prod
 
 ---
 
-## 9. Advanced Features
-
-Try:
-- Multi-agent orchestration (“bot bot” debates)
-- Captions/transcription overlays
-- Webhook integration for event-driven bot actions
-- Analytics/dashboards for agent activity
-
----
-
-## 10. Key Insights
+## 9. Key Insights
 
 - Early LLM-driven prototyping guides system design, even if output isn’t production-ready.
 - Modular, stepwise validation saves countless hours chasing complex bugs.
