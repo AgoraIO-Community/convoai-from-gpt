@@ -117,8 +117,7 @@ export default function RtcClient({ token }: { token: string }) {
 }
 ```
 
-📷 _Add a screenshot of console showing published audio track here_  
-`/images/agora-audio-track-console.png`
+
 
 ---
 
@@ -160,8 +159,6 @@ export default async function handler(req, res) {
 }
 ```
 
-📷 _Insert a screenshot showing the bot joining the channel_  
-`/images/bot-agent-joined.png`
 
 ---
 
