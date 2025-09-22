@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "api/agent/start.ts": { "maxDuration": 60, "memory": 1024 },
+    "api/agent/stop.ts":  { "maxDuration": 60, "memory": 512  },
+    "api/token.ts":       { "maxDuration": 30, "memory": 512  },
+    "api/tts/speak.ts":   { "maxDuration": 60, "memory": 512  },
+    "api/agent/text.ts":  { "maxDuration": 60, "memory": 512  }
+  }
+}
