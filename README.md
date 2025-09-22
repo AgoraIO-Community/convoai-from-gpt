@@ -1,11 +1,11 @@
-# Agora DevRel Sample UI/Convo - Vernon Marshall
+# convoai-from-scratch
 
 ## Quickstart (Local Development)
 
 1. **Unzip & Enter**
    ```bash
-   git clone https://github.com/vmarshall/agora-devrel-vmarshall
-   cd agora-devrel-vmarshall
+   git clone[ [[https://github.com/vmarshall/agora-devrel-vmarshall](https://github.com/AgoraIO-Community/convoai-from-scratch)](https://github.com/AgoraIO-Community/convoai-from-scratch)](https://github.com/AgoraIO-Community/convoai-from-scratch)
+   cd convoai-from-scratch
    ```
 
 2. **Configure Environment Variables**
