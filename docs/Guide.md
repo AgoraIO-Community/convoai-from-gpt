@@ -4,7 +4,6 @@
 ![header image](/public/images/convoai-demo-header.png)
 
 ## Intro ##
-> (do not include section title)
 
 There’s something magical about gluing together real-time systems and watching the feedback loop play out in real time. That magic is what drew me to Agora’s **ConvoAI**—a framework that bridges speech, LLM reasoning, and TTS playback in a single pipeline.  
 
