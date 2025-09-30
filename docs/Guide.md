@@ -2,15 +2,25 @@
 
 ## 1. Introduction & Motivation
 
-Curious how to bring real-time voice and conversational AI together? This guide walks you through every step—highlighting not just what works, but lessons learned from failed attempts, architectural design, debugging, and best practices along the way.
+Curious how to bring real-time voice and conversational AI together? 
+
+This guide walks you through the steps — highlighting approaches and lessons learned, architectural design, debugging, and best practices along the way.
+
+I approached it by trying to one-shot it in ChatGPT, have it not work, but generate a nice scaffolding for reference.
+
+From the generated reference I was easily able to reference the portions of the Agora stack that I needed to understand. I then proceeded to fix and/or correctly implement each of the relevant Agora components, and finally combine the results into a nicely working demo covering my use case.
+
 
 ---
 
 ## 2. Prerequisites
 
+To successfully implement video calling with Agora, you must have the following:
+
 - **Accounts:** Agora, OpenAI.
 - **Tech:** Node.js, npm, Git, Vercel (optional).
 - **Skills:** Familiarity with React/Next.js.
+
 
 ---
 
@@ -43,7 +53,7 @@ OPENAI_LLM_MODEL=gpt-4o-mini
 OPENAI_TTS_MODEL=gpt-4o-mini-tts
 OPENAI_TTS_VOICE=alloy
 
-NEXT_PUBLIC_DEFAULT_CHANNEL=demo-room
+NEXT_PUBLIC_DEFAULT_CHANNEL=scratch-room
 WEBHOOK_SHARED_SECRET=optional
 
 ```
@@ -76,9 +86,9 @@ npm run dev
 
 ### Diagram
 
-```
 
-graph TD
+```mermaid
+graph TD;
 UserMic(Microphone) --> AgoraRTC
 AgoraRTC --> Server
 Server --> Agent
@@ -96,9 +106,13 @@ AgoraRTC --> UI
 
 ### Step 0: Ideation with ChatGPT
 
-Use LLMs to scaffold project architecture—expect guidance, not perfection! Initial code will be incomplete but will clarify system integration points.
+Use LLMs to scaffold project architecture—expect guidance, not full implementation.
 
-### Step 1: RTC Voice Channel
+Initial code will be incomplete but will clarify system integration points.
+
+Follow the steps to verify each of the Agora components.
+
+### Build Step 1: RTC Voice Channel
 
 1. **Create project** in Agora Console.
 2. **Enable RTC** and ConvoAI extensions.
@@ -119,15 +133,15 @@ const [joined, setJoined] = useState(false);
 const clientRef = useRef(AgoraRTC.createClient({ mode: "rtc", codec: "vp8" }));
 
 useEffect(() => {
-if (!joined) return;
-const joinChannel = async () => {
-await clientRef.current.join(APP_ID, CHANNEL, token, UID);
-const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-await clientRef.current.publish([audioTrack]);
-};
-joinChannel();
-return () => {
-clientRef.current.leave();
+    if (!joined) return;
+    const joinChannel = async () => {
+        await clientRef.current.join(APP_ID, CHANNEL, token, UID);
+        const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        await clientRef.current.publish([audioTrack]);
+    };
+    joinChannel();
+    return () => {
+    clientRef.current.leave();
 };
 }, [joined]);
 
@@ -143,10 +157,10 @@ Tips:
 - Make channel name and UID flexible.
 - Always clean up tracks/clients.
 
-### Step 2: ConvoAI Agent Orchestration
+### Build  Step 2: ConvoAI Agent Orchestration
 
-- Enable ConvoAI extension in Agora dashboard, generate credentials.
-- Connect agent using backend API route.
+- Enable ConvoAI extension in [Agora dashboard](https://console.agora.io/), generate credentials.
+- Connect agent using backend API route. 
 
 **Sample Agent Endpoint:**
 ```
@@ -156,40 +170,40 @@ const payload = {
 channel: "demo",
 user_id: "bot",
 llm: {
-provider: "openai",
-model: "gpt-4",
-api_key: process.env.OPENAI_API_KEY
-},
-voice: "en-US-JennyNeural"
-};
+    provider: "openai",
+    model: "gpt-4",
+    api_key: process.env.OPENAI_API_KEY
+    },
+    voice: "en-US-JennyNeural"
+    };
 
-const result = await fetch("https://api.agora.io/conversationalai/v1/project/YOUR_PROJECT_ID/agent/start", {
-method: "POST",
-headers: {
-Authorization: "Basic " + Buffer.from(`${process.env.CONVOAI_CLIENT_ID}:${process.env.CONVOAI_CLIENT_SECRET}`).toString("base64"),
-"Content-Type": "application/json"
-},
-body: JSON.stringify(payload)
+    const result = await fetch("https://api.agora.io/conversationalai/v1/project/YOUR_PROJECT_ID/agent/start", {
+    method: "POST",
+    headers: {
+        Authorization: "Basic " + Buffer.from(`${process.env.CONVOAI_CLIENT_ID}:${process.env.CONVOAI_CLIENT_SECRET}`).toString("base64"),
+    "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
 });
 
 if (!result.ok) {
-res.status(result.status).json({ error: "Agent failed to start" });
+    res.status(result.status).json({ error: "Agent failed to start" });
 return;
 }
 
 const data = await result.json();
-res.status(200).json(data);
+    res.status(200).json(data);
 }
 
 ```
-- Validate agent joins in dashboard/console logs.
+- Validate agent joins in dashboard/console logs. https://console.agora.io/
 
-### Step 3: Live Voice→LLM→Voice Exchange
+### Build Step 3: Live Voice→LLM→Voice Exchange
 
-- User joins, speaks; agent responds via GPT-4 logic + Azure/ElevenLabs TTS.
+- User joins, speaks; agent responds via GPT-4 logic + OpenAI TTS.
 - UI can show text/captions and control mic/agent actions.
 
-### Step 4: Styling & UI Enhancement
+### Build Step 4: Styling & UI Enhancement
 
 Prototype with simple UI, then request LLM (ChatGPT) or Tailwind for design improvements. Aim for accessibility and cross-device compatibility.
 
@@ -230,7 +244,7 @@ vercel --prod
 
 ---
 
-## 9. Key Insights
+## 9. Conclusion
 
 - Early LLM-driven prototyping guides system design, even if output isn’t production-ready.
 - Modular, stepwise validation saves countless hours chasing complex bugs.
