@@ -404,7 +404,7 @@ To confirm your demo is solid:
 
 If all steps succeed, your ConvoAI demo is ready to show!
 
-### Step 7. Deployment ( Optional )
+### Step 6. Deployment ( Optional )
 
 **Vercel:**
 ```
@@ -413,7 +413,7 @@ vercel --prod
 - Set env vars in the Vercel dashboard (backend only for secrets).
 - Check console and serverless logs for issues.
   
-## 8. Now It's Your Turn!
+## Now It's Your Turn!
 
 After an initial naive prompt, review your results, gain clarity as to important moving parts. Early LLM-driven prototyping guides system design, even if the output isn’t production-ready. Make sure the overall structure isn't too wonky or distracting. Do your normal code, debug, and iteration routine on the components—they probably won't work initially—but with sane structure and boilerplate to keep you focused, it’s painless and results in a working prototype while still gaining proper understanding.
 
