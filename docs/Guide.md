@@ -9,7 +9,7 @@ I approached it by trying to one-shot it in ChatGPT, have it not work, but gener
 From the generated reference I was easily able to reference the portions of the Agora stack that I needed to understand. I then proceeded to fix and/or correctly implement each of the relevant Agora components, and finally combine the results into a nicely working demo covering my use case.
 
 
-## 2. Prerequisites
+## Prerequisites
 
 To successfully implement video calling with Agora, you must have the following:
 
@@ -20,7 +20,7 @@ To successfully implement video calling with Agora, you must have the following:
 
 
 
-## 3. Setup & Configuration
+## Setup & Configuration
 
 ### Clone Template
 
@@ -67,9 +67,7 @@ npm run dev
 # Open http://localhost:3000
 
 ```
-
-
-## 4. System Architecture
+## System Architecture
 
 ### Components
 
@@ -95,7 +93,7 @@ AgoraRTC --> UI
 ```
 
 
-## 5. Step-by-Step Implementation
+## Step-by-Step Implementation
 
 ### Step 0: Ideation with ChatGPT
 
