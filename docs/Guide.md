@@ -105,7 +105,7 @@ Initial code will be incomplete but will clarify system integration points.
 
 Follow the steps to verify each of the Agora components.
 
-### Build Step 1: RTC Voice Channel
+### Step 1: RTC Voice Channel
 
 1. **Create project** in Agora Console.
 2. **Enable RTC** and ConvoAI extensions.
@@ -139,10 +139,10 @@ useEffect(() => {
 }, [joined]);
 
 return (
-<div>
-<button onClick={() => setJoined(true)}>Join Voice</button>
-</div>
-);
+    <div>
+    <button onClick={() => setJoined(true)}>Join Voice</button>
+    </div>
+    );
 }
 
 ```
@@ -150,7 +150,7 @@ Tips:
 - Make channel name and UID flexible.
 - Always clean up tracks/clients.
 
-### Build  Step 2: ConvoAI Agent Orchestration
+### Step 2: ConvoAI Agent Orchestration
 
 Before writing any code, enable the ConvoAI extension in your Agora Dashboard
 .
@@ -257,7 +257,7 @@ const data = await result.json();
 ```
 - Validate agent joins in dashboard usage section. https://console.agora.io/usage
 
-### Build Step 3: Live Voice→LLM→Voice Exchange
+### Step 3: Live Voice→LLM→Voice Exchange
 
 At this stage, you have your Agora RTC client working and an agent endpoint ready to launch. Now it’s time to connect them — sending your voice to the agent, routing the text through the LLM, converting the result to speech, and streaming it back in real time.
 
@@ -321,11 +321,11 @@ if (!joined) return;
 }, [joined]);
 
 return (
-<div>
-<button onClick={() => setJoined(true)}>Start Voice Agent</button>
-<p>{agentReply}</p>
-</div>
-);
+    <div>
+    <button onClick={() => setJoined(true)}>Start Voice Agent</button>
+    <p>{agentReply}</p>
+    </div>
+    );
 }
 
 ```
@@ -336,26 +336,26 @@ export default async function handler(req, res) {
 const response = await fetch("https://api.agora.io/conversationalai/v1/project/YOUR_PROJECT_ID/agent/start", {
 method: "POST",
 headers: {
-Authorization: "Basic " + Buffer.from(`${process.env.CONVOAI_CLIENT_ID}:${process.env.CONVOAI_CLIENT_SECRET}`).toString("base64"),
-"Content-Type": "application/json"
+    Authorization: "Basic " + Buffer.from(`${process.env.CONVOAI_CLIENT_ID}:${process.env.CONVOAI_CLIENT_SECRET}`).toString("base64"),
+    "Content-Type": "application/json"
 },
 body: JSON.stringify({
 channel: "demo",
 user_id: "bot",
 llm: {
-provider: "openai",
-model: "gpt-4o-mini"
+    provider: "openai",
+    model: "gpt-4o-mini"
 },
 tts: {
-model: "gpt-4o-mini-tts",
-voice: "alloy"
-}
+    model: "gpt-4o-mini-tts",
+    voice: "alloy"
+    }
 })
 });
 
 if (!response.ok) {
-res.status(response.status).json({ error: "Agent failed to start" });
-return;
+    res.status(response.status).json({ error: "Agent failed to start" });
+    return;
 }
 
 const data = await response.json();
@@ -377,26 +377,14 @@ Follow these steps to confirm everything works end-to-end:
 
 6. Stop or restart — Reload the page and ensure the agent rejoins cleanly without errors.
 
-### Build Step 4: Styling & UI Enhancement
+### Step 4: Styling & UI Enhancement
 Once your prototype is functionally solid, styling becomes quick and painless. You’re now working from known-working components, so all changes are purely visual — low risk, high payoff.
 
 At this stage, you can hand your existing code to an LLM and ask it to apply Tailwind or your preferred styling framework. Because the structure and logic are already validated, the model can safely generate clean, responsive UI updates without breaking functionality.
 
 Tailwind is ideal for this workflow: class-based, predictable, and easy to tweak. In minutes, you can transform a raw demo into a polished, production-ready interface that looks great across devices — no tedious CSS debugging required.
 
-## 6. Deployment
-
-**Vercel:**
-```
-
-vercel --prod
-
-```
-- Set env vars in the Vercel dashboard (backend only for secrets).
-- Check console and serverless logs for issues.
-
-
-## 7. Testing
+### Step 5. Testing
 
 To confirm your demo is solid:
 
@@ -418,6 +406,15 @@ To confirm your demo is solid:
 
 If all steps succeed, your ConvoAI demo is ready to show!
 
+### Step 7. Deployment ( Optional )
+
+**Vercel:**
+```
+vercel --prod
+```
+- Set env vars in the Vercel dashboard (backend only for secrets).
+- Check console and serverless logs for issues.
+  
 ## 8. Now It's Your Turn!
 
 After an initial naive prompt, review your results, gain clarity as to important moving parts. Early LLM-driven prototyping guides system design, even if the output isn’t production-ready. Make sure the overall structure isn't too wonky or distracting. Do your normal code, debug, and iteration routine on the components—they probably won't work initially—but with sane structure and boilerplate to keep you focused, it’s painless and results in a working prototype while still gaining proper understanding.
