@@ -1,44 +1,43 @@
-# 🎙️ Create a Voice AI Agent Using Prompt Engineering and Agora
 
-![header image] (/public/images/convoai-demo-header.png)
+# 🎙️ Build a Live Voice Chatbot with Agora ConvoAI and GPT-4
 
-Real-time voice and LLM intelligence unlock entirely new ways for users to interact with applications. With Agora’s Conversational AI Engine, you can build voice agents that respond instantly, sound natural, and reason about user intent — all within a low-latency RTC channel.
+![header image](/public/images/convoai-demo-header.png)
 
-In this guide, we’ll walk through how to build a fully working **Voice AI Agent** using Agora + OpenAI, with **prompt engineering** powering your agent’s behavior. You'll begin by generating a high‑level scaffold using ChatGPT, refine the architecture, integrate the Agora stack, and finish with a functioning live demo.
+## Intro ##
+> (do not include section title)
 
-By the end, you’ll have a system that:
+There’s something magical about gluing together real-time systems and watching the feedback loop play out in real time. That magic is what drew me to Agora’s **ConvoAI**—a framework that bridges speech, LLM reasoning, and TTS playback in a single pipeline.  
 
-- Streams microphone audio with Agora RTC  
-- Uses a ConvoAI agent to perform STT → LLM → TTS  
-- Speaks back with OpenAI’s TTS models in real time  
-- Behaves according to your custom agent prompt  
-- Runs in a clean, Next.js environment
+This wasn’t a formal build or a hackathon sprint. It started with a curiosity: _“Can I wire up my mic, speak naturally, and get a GPT-4-powered bot to talk back to me using Agora?”_  
 
-# Prerequisites
+The answer is yes—but it took a few iterations, some console spelunking, and help from a few LLM nudges along the way. This tutorial captures the journey: the wrong starts, the modular wins, and how I used LLM's as both a compass and a cleanup tool.
 
-You should be familiar with:
+Furthermore, we’ll walk through how to use [Agora’s ConvoAI](https://www.agora.io/en/conversational-ai/) to build a live, voice-based chatbot powered by GPT-4. By combining Agora’s real-time audio SDK with their Conversational AI Engine, we can create a seamless interaction loop where a user speaks into a microphone, the speech is transcribed, processed by a large language model, and the response is spoken back in real time.
 
-- Basic JavaScript/TypeScript and React  
-- REST APIs and environment variables  
-- npm/yarn and basic Node.js project structure  
-- Access to the Agora Console and an Agora developer account  
+We’ll go from initial setup to streaming conversations, highlighting how LLMs can help throughout development—from designing architecture to cleaning up the final user interface.
 
-You'll need:
+## Prerequisites ##
 
-- An Agora project with **RTC** and **ConvoAI** enabled  
-- An OpenAI API key (or another LLM provider supported by ConvoAI)
-- QuickStart:
-🔗 https://www.agora.io/en/blog/how-to-get-started-with-agora
+Before starting, you should be familiar with:
 
----
+- Basic JavaScript/TypeScript and React
+- REST APIs and environment variables
+- Using npm/yarn and setting up a Node.js project
+- Access to the Agora Console and an Agora developer account
 
-# Project Setup
+You’ll also need:
+- An Agora project with RTC and ConvoAI enabled
+- An OpenAI API Key (or another LLM provider supported by ConvoAI)
+
+🔗 https://www.agora.io/en/blog/how-to-get-started-with-agora?utm_source=medium&utm_medium=blog&utm_campaign=Build_a_Live_Voice_Chatbot_with_Agora_ConvoAI_and_GPT-4
+
+## Project Setup ##
 
 We’ll use a Next.js app with API routes and client components to wire everything together.
 
 ```bash
-npx create-next-app@latest convoai-from-scratch
-cd convoai-from-scratch
+npx create-next-app@latest agora-convoai-demo
+cd agora-convoai-demo
 npm install agora-rtc-sdk-ng dotenv
 ```
 
@@ -48,111 +47,22 @@ Create a `.env.local` file:
 NEXT_PUBLIC_AGORA_APP_ID=your_agora_app_id
 AGORA_APP_CERTIFICATE=your_agora_cert
 NEXT_PUBLIC_DEFAULT_CHANNEL=demo
-
-AGORA_CUSTOMER_ID=your_convoai_client_id
-AGORA_CUSTOMER_SECRET=your_convoai_client_secret
-
 OPENAI_API_KEY=your_openai_key
-OPENAI_LLM_MODEL=gpt-4o-mini
-OPENAI_TTS_MODEL=gpt-4o-mini-tts
-OPENAI_TTS_VOICE=alloy
+CONVOAI_CLIENT_ID=your_convoai_client_id
+CONVOAI_CLIENT_SECRET=your_convoai_client_secret
 ```
 
-**Important:** Always keep secrets **server‑side**. Only expose values via `NEXT_PUBLIC_*` when absolutely safe.
+## Build Voice Channel ##
 
----
-
-# Step 0: Use Prompt Engineering to Scaffold the Project
-
-Before writing any code, we use ChatGPT as a **project architect**. This accelerates onboarding and clarifies which Agora components you actually need.
-
-### Prompt 1 — Project Scaffold Generator
-
-Paste into ChatGPT:
-
-```
-Create a Next.js project that implements a real-time voice AI agent using:
-- Agora RTC for audio capture
-- Agora Conversational AI Agent for voice-to-LLM-to-voice
-- OpenAI for reasoning + TTS
-
-Include:
-- file structure
-- API routes for starting/stopping an agent
-- RTC client component
-- environment variables
-- "Start Voice Agent" UI button
-
-The output does not need to be perfect—scaffolding is fine.
-```
-
-This gives you a rough—but highly useful—starting blueprint.
-
----
-
-### Prompt 2 — System Behavior Prompt for the Agent
-
-This defines your agent’s role and boundaries:
-
-```
-You are a real-time voice assistant helping a developer explore Agora’s Conversational AI Engine.
-Your goals:
-- Respond in 1–3 sentences.
-- Explain Agora concepts clearly.
-- If unsure, say so and provide guidance.
-Tone: friendly, concise, technically accurate.
-```
-
-We’ll embed this prompt directly into the agent’s LLM config.
-
----
-
-### Prompt 3 — Architecture Clarification
-
-Use this when anything feels unclear:
-
-```
-Explain the exact data flow between Agora RTC, Agora ConvoAI Agent,
-OpenAI LLM/TTS, and my frontend.
-Represent each component with inputs, outputs, and events.
-```
-
-Use this high‑level clarity to avoid wiring mistakes later.
-
----
-
-# System Architecture
-
-The final system consists of four main components:
-
-- **Agora RTC** – streams real-time microphone audio from browser → channel  
-- **ConvoAI Agent** – listens to audio, transcribes, queries LLM, sends TTS audio back  
-- **OpenAI** – GPT‑4o‑mini for reasoning + GPT‑4o‑mini‑tts for voice  
-- **Next.js** – frontend + serverless API routes for agent orchestration  
-
-```mermaid graph TD;
-  User(Microphone Input) --> RTC[Agora RTC Engine]
-  RTC --> Backend[Next.js API Routes]
-  Backend --> Agent[ConvoAI Agent]
-  Agent --> LLM[OpenAI GPT-4o-mini]
-  LLM --> TTS[OpenAI TTS]
-  TTS --> Agent
-  Agent --> RTC
-  RTC --> UI[Frontend UI Playback]
-```
-
----
-
-# Step 1: Join an Agora RTC Voice Channel
-
-### Create RTC Client
+### Join RTC Channel with Mic ###
 
 ```tsx
+// components/RtcClient.tsx
 import { useEffect, useRef, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
 
 const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
-const CHANNEL = process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "demo";
+const CHANNEL = process.env.NEXT_PUBLIC_DEFAULT_CHANNEL!;
 const UID = Math.floor(Math.random() * 100000);
 
 export default function RtcClient({ token }: { token: string }) {
@@ -161,180 +71,70 @@ export default function RtcClient({ token }: { token: string }) {
 
   useEffect(() => {
     if (!joined) return;
-
-    const start = async () => {
+    const join = async () => {
       await clientRef.current.join(APP_ID, CHANNEL, token, UID);
       const micTrack = await AgoraRTC.createMicrophoneAudioTrack();
       await clientRef.current.publish([micTrack]);
-      console.log("Joined RTC channel.");
     };
-
-    start();
-    return () => clientRef.current.leave();
+    join();
   }, [joined]);
 
-  return <button onClick={() => setJoined(true)}>Join Voice</button>;
+  return (
+    <button onClick={() => setJoined(true)}>Join Channel</button>
+  );
 }
 ```
 
-**Tip:**  
-Open the Agora Console → Usage → RTC and verify your UID appears.
+## Build ConvoAI Agent ##
 
----
-
-# Step 2: Create & Start a ConvoAI Agent
-
-Enable ConvoAI extension in the Agora dashboard:
-
-1. Go to **Extensions**  
-2. Enable **Conversational AI**  
-3. Copy **Customer ID** and **Customer Secret**
-
-### Create Agent Start Endpoint
-
-`app/api/agent/start/route.ts`:
+### Backend Start/Stop Agent ###
 
 ```ts
-const AGENT_PROMPT = `
-You are a real-time voice assistant helping a developer explore Agora’s Conversational AI Engine.
-Keep responses short and technically accurate.
-`;
-
-export async function POST() {
+// pages/api/agent/start.ts
+export default async function handler(req, res) {
   const payload = {
-    channel: process.env.NEXT_PUBLIC_DEFAULT_CHANNEL,
+    channel: "demo",
     user_id: "bot",
     llm: {
       provider: "openai",
-      model: process.env.OPENAI_LLM_MODEL,
-      system_prompt: AGENT_PROMPT
+      model: "gpt-4",
+      api_key: process.env.OPENAI_API_KEY
     },
-    tts: {
-      model: process.env.OPENAI_TTS_MODEL,
-      voice: process.env.OPENAI_TTS_VOICE
-    }
+    voice: "en-US-JennyNeural"
   };
 
-  const auth = Buffer.from(
-    `${process.env.AGORA_CUSTOMER_ID}:${process.env.AGORA_CUSTOMER_SECRET}`
-  ).toString("base64");
+  const result = await fetch("https://api.agora.io/conversationalai/v1/project/YOUR_PROJECT_ID/agent/start", {
+    method: "POST",
+    headers: {
+      Authorization: "Basic " + Buffer.from(`${process.env.CONVOAI_CLIENT_ID}:${process.env.CONVOAI_CLIENT_SECRET}`).toString("base64"),
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
 
-  const r = await fetch(
-    `https://api.agora.io/conversational-ai-agent/v2/projects/${process.env.NEXT_PUBLIC_AGORA_APP_ID}/agents:join`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${auth}`
-      },
-      body: JSON.stringify(payload)
-    }
-  );
-
-  return new Response(await r.text(), { status: r.status });
+  const data = await result.json();
+  res.status(200).json(data);
 }
 ```
 
-### Test the Agent
+## Testing Voice Chatbot ##
 
-```bash
-curl -X POST http://localhost:3000/api/agent/start
-```
+1. Join the RTC channel.
+2. Use your mic to speak.
+3. The bot agent should join and speak back a response generated by GPT-4.
 
-Check Agora Console → Usage → **Conversational AI** → Active Sessions.
+Monitor agent join logs in the Agora Console and watch for HTTP 200 responses from the API.
 
----
+## Conclusion ##
 
-# Step 3: Build the Live Voice → LLM → Voice Loop
+We’ve successfully created a real-time voice chatbot using Agora ConvoAI and GPT-4. This framework offers flexibility for adding captioning, user interfaces, or multi-agent setups.
 
-### Combine RTC + Agent
+🔗 GitHub Repo: https://github.com/your-username/agora-convoai-demo
 
-```tsx
-import { useEffect, useRef, useState } from "react";
-import AgoraRTC from "agora-rtc-sdk-ng";
+## Other Resources ##
 
-const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
-const CHANNEL = process.env.NEXT_PUBLIC_DEFAULT_CHANNEL!;
-const UID = Math.floor(Math.random() * 100000);
+- [Agora ConvoAI Documentation](https://docs.agora.io/en/conversational-ai/)
+- [Agora RTC SDK](https://docs.agora.io/en/voice/)
+- [Agora GitHub Examples](https://github.com/AgoraIO)
+- I also invite you to join the Agora.io Developer Slack community: [Join Here](https://www.agora.io/en/join-slack/
 
-export default function VoiceAgent({ token }: { token: string }) {
-  const [status, setStatus] = useState("Idle");
-  const clientRef = useRef(AgoraRTC.createClient({ mode: "rtc", codec: "vp8" }));
-
-  const start = async () => {
-    setStatus("Joining channel...");
-    await clientRef.current.join(APP_ID, CHANNEL, token, UID);
-
-    setStatus("Publishing mic...");
-    const micTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    await clientRef.current.publish([micTrack]);
-
-    setStatus("Starting agent...");
-    const res = await fetch("/api/agent/start", { method: "POST" });
-    if (!res.ok) return setStatus("Agent failed to start");
-
-    setStatus("Agent connected — start talking!");
-  };
-
-  return (
-    <div>
-      <button onClick={start}>Start Voice Agent</button>
-      <p>{status}</p>
-    </div>
-  );
-}
-```
-
-Now your browser **speaks**, agent **listens**, LLM **thinks**, TTS **speaks back**, and Agora RTC handles the streaming in real time.
-
----
-
-# Step 4: Add Optional UI Enhancements
-
-Ask ChatGPT:
-
-```
-Add Tailwind styling to improve layout:
-• centered card
-• status indicator
-• agent transcript panel
-Keep logic unchanged.
-```
-
-LLMs excel here because the logic is already correct.
-
----
-
-# Step 5: Test the Full Demo
-
-1. Run the dev server.  
-2. Click **Start Voice Agent**.  
-3. Approve mic permissions.  
-4. Speak.  
-5. Hear the agent speak back within 1–2 seconds.  
-6. Check dashboard for RTC + agent sessions.  
-7. Reload page and ensure clean reconnect.
-
-If all steps work → your real‑time voice agent is live!
-
----
-
-# Conclusion
-
-You’ve now built a real-time Voice AI Agent powered by Agora RTC + ConvoAI + OpenAI. You explored how LLM‑driven scaffolding accelerates development, how prompt engineering shapes agent behavior, and how modular validation keeps everything stable.
-
-Next steps:
-
-- Add captions/subtitles  
-- Create multi-agent experiences  
-- Add persistent memory  
-- Deploy to Vercel  
-- Integrate with a game or kiosk UI  
-
-**Reference**:
-
-- GitHub Template: https://github.com/AgoraIO-Community/convoai-from-scratch  
-- Conversational AI Docs: https://docs.agora.io/en/conversational-ai/  
-- Agora Developer Blog: https://www.agora.io/en/category/developer/  
-
----
