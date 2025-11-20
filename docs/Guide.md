@@ -331,7 +331,7 @@ Next steps:
 - Deploy to Vercel  
 - Integrate with a game or kiosk UI  
 
-Useful links:
+**Reference**:
 
 - GitHub Template: https://github.com/AgoraIO-Community/convoai-from-scratch  
 - Conversational AI Docs: https://docs.agora.io/en/conversational-ai/  
